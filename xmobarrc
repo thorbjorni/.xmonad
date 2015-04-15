@@ -1,0 +1,28 @@
+Config { font = "xft:Terminus-10" 
+       , bgColor = "#414141"
+       , fgColor = "grey"
+       , borderColor =  "red"
+       , iconRoot = ".xmonad"
+       , sepChar =  "%"   -- delineator between plugin names and straight text
+       , alignSep = "}{"  -- separator between left-right alignment
+       , commands = [ Run Weather "EGPF" ["-t"," <tempF>F","-L","64","-H","77","--normal","green","--high","red","--low","lightblue"] 36000
+                    , Run Cpu ["-L","3","-H","50","--normal","green","--high","red"] 10
+                    , Run Memory ["-t","Mem: <usedratio>%"] 10
+                    , Run Swap ["<usedratio>%","-H","1024","-L","512","-h","#FFB6B0","-l","#3279a8","-n","#FFFFCC"] 10
+                    , Run Date " <fc=#ABABAB>%F (%a) %T</fc>" "date" 10
+                    , Run StdinReader
+                    , Run Com "spotify-out.sh" [] "spotify" 1
+                    , Run MarqueePipeReader "/home/smari/bashstuff/song" (10, 7, "+") "mpipe"
+                    , Run Com "uname" ["-r"] "uname1" 0
+                    , Run Com "uname" ["-n"] "uname2" 0
+                    , Run Com "cat /tmp/pidginx" [] "pidginnot" 10
+                    , Run PipeReader "/tmp/.volume-pipe" "vol_pipe"
+                    , Run DynNetwork     [ "--template" , "<dev>: <tx>kB/s|<rx>kB/s"
+                             , "--Low"      , "1000"       -- units: kB/s
+                             , "--High"     , "5000"       -- units: kB/s
+                             , "--low"      , "darkgreen"
+                             , "--normal"   , "darkorange"
+                             , "--high"     , "darkred"
+                             ] 10
+                    ]
+       }
