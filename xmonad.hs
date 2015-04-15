@@ -6,12 +6,8 @@ import Data.Monoid
 import Data.Ratio
 import GHC.Real
 import System.Exit
- 
--- xmonad core
 import XMonad
 import XMonad.StackSet hiding (workspaces)
- 
--- xmonad contrib
 import XMonad.Actions.SpawnOn
 import XMonad.Actions.Warp
 import XMonad.Hooks.DynamicLog
@@ -26,7 +22,6 @@ import XMonad.Util.Dzen
 import XMonad.Util.EZConfig
 import XMonad.Util.Run
  
---myStatusBar = "xmobar /home/smari/.xmonad/.xmobarrc2"
 centerMouse = warpToWindow (1/2) (1/2)
 statusBarMouse = warpToScreen 0 (5/1600) (5/1200)
 withScreen screen f = screenWorkspace screen >>= flip whenJust (windows . f)
@@ -63,7 +58,6 @@ fullscreenMPlayer = className =? "MPlayer" --> do
 main = do
     nScreens    <- countScreens
     hs          <- mapM (spawnPipe . xmobarCommand) [0 .. nScreens-1]
-    --botbar      <- spawnPipe myStatusBar
     xmonad $ defaultConfig {
         borderWidth             = 1,
         workspaces              = withScreens nScreens (map show [1..5]),
@@ -80,7 +74,7 @@ main = do
                                   <+> manageDocks
                                   <+> manageSpawn,
         logHook                 = mapM_ dynamicLogWithPP $ zipWith pp hs [0..nScreens],
-        startupHook             = setWMName "LG3D" -- gotta keep this until all the machines I use have the version of openjdk that respects _JAVA_AWT_WM_NONREPARENTING`
+        startupHook             = setWMName "LG3D"
         }
  
 keyBindings conf = let m = modMask conf in fromList $ [
@@ -124,12 +118,6 @@ keyBindings conf = let m = modMask conf in fromList $ [
     , i                <- [0, controlMask, mod1Mask, controlMask .|. mod1Mask]
     ]
  
--- TODO: add control/alt mask to all keybindings21
- 
---xmobarCommand (S s) = unwords ["xmobar", "-x", show s, "-t", template s] where
---    template 0 = "%StdinReader%}{%uname%"
---    template _ = "%StdinReader%}{%date%"
-
 xmobarCommand (S s) = unwords ["xmobar /home/smari/.xmonad/xmobarrc", "-i", "/home/smari/Downloads", "-x", show s, "-t", template s] where
 	template 0 = "::%StdinReader%::%dynnetwork%::}{::%uname2%@%uname1%::"
 	template _ = "::%StdinReader%::}{::VOL:%vol_pipe%::%date%::"
@@ -140,7 +128,6 @@ pp h s = marshallPP s defaultPP {
     ppHiddenNoWindows   = color dark,
     ppUrgent            = color "red",
     ppSep               = "",
-  --  ppOrder             = \(wss:layout:title:_) -> ["\NUL", wss, "\NUL", title],
     ppOrder             = \(wss:layout:title:_) -> [wss],
     ppOutput            = hPutStrLn h
     }
