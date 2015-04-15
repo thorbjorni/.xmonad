@@ -6,6 +6,7 @@ import Data.Monoid
 import Data.Ratio
 import GHC.Real
 import System.Exit
+--import XMonad
 import XMonad
 import XMonad.StackSet hiding (workspaces)
 import XMonad.Actions.SpawnOn
