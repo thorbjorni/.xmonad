@@ -14,6 +14,7 @@ import XMonad.Hooks.DynamicLog
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.ManageHelpers
 import XMonad.Hooks.SetWMName
+import XMonad.Hooks.UrgencyHook
 import XMonad.Layout.Grid
 import XMonad.Layout.IndependentScreens
 import XMonad.Layout.Magnifier
@@ -58,7 +59,7 @@ fullscreenMPlayer = className =? "MPlayer" --> do
 main = do
     nScreens    <- countScreens
     hs          <- mapM (spawnPipe . xmobarCommand) [0 .. nScreens-1]
-    xmonad $ defaultConfig {
+    xmonad $ withUrgencyHook NoUrgencyHook defaultConfig {
         borderWidth             = 1,
         workspaces              = withScreens nScreens (map show [1..5]),
         terminal                = "urxvt",
@@ -78,8 +79,9 @@ main = do
         }
  
 keyBindings conf = let m = modMask conf in fromList $ [
-    ((m .|. shiftMask,      xK_Return  ), spawnHere "urxvt"),
-    ((m                , xK_p          ), spawn "gmrun"),
+    ((m                , xK_Return     ), spawnHere "urxvt"),
+    --((m                , xK_p          ), spawn "gmrun"),
+    ((m                , xK_p          ), spawn "dmenu_run"),
     ((m .|. shiftMask  , xK_c          ), kill),
     ((m                , xK_q          ), restart "xmonad" True),
     ((m .|. shiftMask  , xK_q          ), io (exitWith ExitSuccess)),
@@ -94,23 +96,22 @@ keyBindings conf = let m = modMask conf in fromList $ [
     ((m .|. shiftMask  , xK_j          ), windows swapDown),
     ((m                , xK_a          ), windows focusMaster),
     ((m .|. shiftMask  , xK_a          ), windows swapMaster),
-    ((m                , xK_w  ), withScreen 0 view),
-    ((m .|. shiftMask  , xK_Control_L  ), withScreen 0 viewShift),
-    ((0,                          0x1008ff12  ), spawn "dvol -t & volpipe.sh"),        -- XF86AudioMute
-    ((0,                          0x1008ff11  ), spawn "dvol -d 2 & volpipe.sh"),   -- XF86AudioLowerVolume
-    ((0,                          0x1008ff13  ), spawn "dvol -i 2 & volpipe.sh"),   -- XF86AudioRaiseVolume
-    ((0,                          0x1008ff14  ), spawn "spotify-change.sh playpause"),
-    ((0,                          0x1008ff17  ), spawn "spotify-change.sh next"),
-    ((0,                          0x1008ff16  ), spawn "spotify-change.sh previous"),
-    ((m                , xK_e      ), withScreen 1 view),
-    ((m .|. shiftMask  , xK_Alt_L      ), withScreen 1 viewShift),
+    ((m                , xK_w          ), withScreen 1 view),
+    ((m .|. shiftMask  , xK_Control_L  ), withScreen 1 viewShift),
+    ((0,                   0x1008ff12  ), spawn "dvol -t & volpipe.sh"),        -- XF86AudioMute
+    ((0,                   0x1008ff11  ), spawn "dvol -d 2 & volpipe.sh"),   -- XF86AudioLowerVolume
+    ((0,                   0x1008ff13  ), spawn "dvol -i 2 & volpipe.sh"),   -- XF86AudioRaiseVolume
+    ((0,                   0x1008ff14  ), spawn "spotify-change.sh playpause"),
+    ((0,                   0x1008ff17  ), spawn "spotify-change.sh next"),
+    ((0,                   0x1008ff16  ), spawn "spotify-change.sh previous"),
+    ((m                , xK_e          ), withScreen 0 view),
+    ((m .|. shiftMask  , xK_Alt_L      ), withScreen 0 viewShift),
     ((m                , xK_u          ), centerMouse),
     ((m .|. controlMask, xK_u          ), centerMouse),
-    ((m .|. mod1Mask   , xK_u          ), centerMouse),
-    --((m                ,xK_h           ), sendMessage Shrink),                          -- %! Shrink a master area
-    --((m                ,xK_l           ), sendMessage Expand),                          -- %! Expand a master area
+    ((m                , xK_h          ), sendMessage Shrink),                          -- %! Shrink a master area
+    ((m                , xK_l          ), sendMessage Expand),                          -- %! Expand a master area
     ((m .|. shiftMask  , xK_u          ), statusBarMouse),
-    ((m .|. shiftMask  , xK_s          ), spawn "slock")
+    ((m .|. shiftMask  , xK_s          ), spawn "slimlock")
     ] ++ [
     ((m .|. e .|. i    , key           ), windows (onCurrentScreen f workspace))
     | (key, workspace) <- zip [xK_1..xK_9] (workspaces' conf)
@@ -119,12 +120,12 @@ keyBindings conf = let m = modMask conf in fromList $ [
     ]
  
 xmobarCommand (S s) = unwords ["xmobar /home/smari/.xmonad/xmobarrc", "-i", "/home/smari/Downloads", "-x", show s, "-t", template s] where
-	template 0 = "::%StdinReader%::%dynnetwork%::}{::%uname2%@%uname1%::"
-	template _ = "::%StdinReader%::}{::VOL:%vol_pipe%::%date%::"
+	template 0 = "::%StdinReader%::}{::VOL:%vol_pipe%::%date%::"
+	template _ = "::%uname2%@%uname1%::%dynnetwork%::}{::%StdinReader%::"
 
 pp h s = marshallPP s defaultPP {
     ppCurrent           = color "green",
-    ppVisible           = color "white",
+    ppVisible           = color "black",
     ppHiddenNoWindows   = color dark,
     ppUrgent            = color "red",
     ppSep               = "",
